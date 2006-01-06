@@ -1,0 +1,85 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+use FindBin qw($Bin);
+use lib "$Bin/lib";
+
+use Carp;
+use File::Slurp;
+use YAML qw(LoadFile);
+
+{
+    my $confpath = "$Bin/config.yaml";
+    my %config   = (
+        wheel_class => 'VI::Wheel::Console',
+        chat_class  => 'VI::Chat::Echo',
+        timeout     => 30,
+        %{ -e $confpath ? LoadFile($confpath) : {} }
+    );
+
+    sub config
+    {
+        my ($key) = @_;
+        my $value = $config{$key};
+        croak "config setting '$key' not found" unless defined $value;
+        $value;
+    }
+}
+
+foreach my $class (qw( wheel chat ))
+{
+    my $package = config("$class\_class");
+    eval "require $package";
+    die "couldn't require package $package: $@" if $@;
+}
+
+my %conversations;
+
+sub log
+{
+    my $line = localtime(time) . "\t" . join( "\t", @_ ) . "\n";
+    append_file( config('logfile'), $line );
+    print $line;
+}
+
+my %event_handlers = (
+    log => \&log,
+    message => sub {
+        my ( $who, $message ) = @_;
+        if ( $message eq '@rehash' )
+        {
+
+            # XXX refactor
+            foreach my $class ( map { config("$_\_class") } qw( chat wheel ) )
+            {
+                my $pm = "$class.pm";
+                $pm =~ s{::}{/}gs;
+                print "$class ==> $pm\n";
+                delete $INC{$pm};
+                eval "require $class";
+                warn "Error rehashing $class: $@" if $@;
+            }
+            return "rehashed.";
+        }
+        else
+        {
+            my $c = $conversations{$who} ||= {};
+            $c->{time} = time;
+            $c->{chat} ||= config('chat_class')->new( \&config, \&log );
+            return $c->{chat}->get_reply( $who, $message );
+        }
+    },
+    idle => sub {
+        foreach ( keys %conversations )
+        {
+            delete $conversations{$_} && print "DELETED $_\n"
+                if $conversations{$_}->{time} <
+                ( time - 60 * config('timeout') );
+        }
+    },
+);
+
+my $wheel = config('wheel_class')->new( \&config, \%event_handlers );
+$wheel->run;
+

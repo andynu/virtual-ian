@@ -1,0 +1,24 @@
+#wheel_class: 'VI::Wheel::Jabber'
+#wheel_class: 'VI::Wheel::AOLIM'
+wheel_class: 'VI::Wheel::Console'
+
+#chat_class: 'VI::Chat::Echo'
+chat_class: 'VI::Chat::Eliza'
+              
+logfile: log
+              
+eliza:
+    name: Ian
+    scriptfile: elizascript
+
+jabber:
+    hostname: jabber.org
+    port: 5222
+    username: virtualian
+    password: XXXXXX
+    resource: Robot
+
+aolim:
+    username: ripatestbot
+    password: XXXXXX
+

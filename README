@@ -1,0 +1,22 @@
+Virtual Ian
+-----------
+
+A silly project from 2006 that exists here strictly for posterity.
+
+I made an AOL Instant Messenger bot which would reply to people using Eliza. In
+addition to my own Eliza chat script, if the bot didn't know what to say, it
+would respond by entering the incoming message into Ask Jeeves -- which, at the
+time, had particularly bad search quality -- and would reply with one of Ask
+Jeeve's "Related Searches" chosen at random. This led to amusing exchanges like:
+
+  xxx: hey you wanna hang out? all my regular dudes are out of the city
+  bot: How do you feel about all of your regular dudes are out of the city?
+  xxx: its tuesday
+  bot: You're a muppet!
+
+People started to have really long conversations with the bot thinking it was me
+so later on I added a feature so that after 15 messages or so it would reveal
+that it was a robot.
+
+Recovered from:
+http://web.archive.org/web/20080509161133/http://langworth.com/pub/virtual_ian/
